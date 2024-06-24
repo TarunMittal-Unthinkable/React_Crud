@@ -1,0 +1,219 @@
+.form-button {
+    padding: 8px 16px;
+    margin: 4px;
+    background-color: #4CAF50; 
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .form-button:hover {
+    background-color: #45a049;
+  }
+  .brand-records-container {
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    width: 900px;
+    
+  }
+  .add-record{
+    margin-bottom: 20%;
+    margin-left: 70%;
+  }
+  .brand-records-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .brand-records-table th, .financial-records-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .brand-records-table th {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .brand-records-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  .brand-records-table tr:hover {
+    background-color: #ddd;
+  }
+  
+  .search-container {
+    display: flex;
+    align-items: center; 
+  }
+  
+  .search-container input {
+    padding: 8px;
+    width: 100%;
+    max-width: 300px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: auto; 
+  }
+  
+  .search-container button {
+    padding: 8px;
+    width: 100%;
+    max-width: 100px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #2196F3;
+    color: white;
+    margin-left: auto; 
+    cursor: pointer;
+  }
+  
+  .pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  .pagination-container button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .pagination-container button:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+  }
+  
+  .delete-button {
+    background-color: #f44336; 
+    padding: 8px 16px;
+    margin: 4px;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .save-button {
+    background-color: #2196F3; 
+    padding: 8px 16px;
+    margin: 4px;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .cancle-button {
+    background-color: #f44336; 
+    padding: 8px 16px;
+    margin: 4px;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .delete-button:hover {
+    background-color: #d32f2f;
+  }
+  
+  .update-button {
+    background-color: #2196F3; 
+    padding: 8px 16px;
+    margin: 4px;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .update-button:hover {
+    background-color: #1976D2;
+  }
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 100%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+  
+  .modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    text-align: center;
+  }
+  
+  .modal-content .form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .modal-content .form-group label {
+    flex: 0 0 100px;
+    font-weight: bold;
+  }
+  
+  .modal-content .form-group input,
+  .modal-content .form-group textarea {
+    flex: 1; 
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+  }
+  
+  .modal-content .form-group textarea {
+    resize: vertical;
+    height: 30px;
+  }
+  
+  .modal-content .button-container {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .modal-content button {
+    padding: 10px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+  }
+  
+  .modal-content button.save {
+    background-color: #2196F3;
+    color: white;
+  }
+  
+  .modal-content button.cancel {
+    background-color: #f44336;
+    color: white;
+  }
+  
