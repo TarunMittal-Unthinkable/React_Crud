@@ -19,13 +19,13 @@ function ProductList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const location = useLocation();
+  const navigate= useNavigate()
 
   function useQuery() {
     return new URLSearchParams(location.search);
   }
   let query = useQuery();
-  let id = query.get('id');
-  console.log(Number(id));
+  let id = query.get('brandId');
 
   useEffect(() => {
     const fetchRecords = async () => {
@@ -42,7 +42,14 @@ function ProductList() {
         setRecords(response?.data?.data.records|| []);
         setTotalPages(response?.data?.data?.pages || 1);
       } catch (error) {
-        console.error("Failed to fetch records:", error);
+        if (error.response && error.response.status === 401) {
+          toast.error('Unauthorized access. Invalid Token/Token Expired');
+          localStorage.removeItem("Authorization");
+          navigate('/login');
+          
+        } else {
+          toast.error(error.response?.data?.message);
+        }
       }
     };
     if (token) {
@@ -56,7 +63,6 @@ function ProductList() {
   };
 
   const handleEdit = (record) => {
-    console.log("",record);
     setEditing(record.id);
     setEditedRecord({ ...record });
   };
@@ -90,8 +96,14 @@ function ProductList() {
       setEditing(null);
       toast.success("Record updated successfully!");
     } catch (error) {
-      console.error("Failed to update the record:", error);
-      toast.error("Failed to update the record.");
+      if (error.response && error.response.status === 401) {
+        toast.error('Unauthorized access. Invalid Token/Token Expired');
+        localStorage.removeItem("Authorization");
+        navigate('/login');
+        
+      } else {
+        toast.error(error.response?.data?.message);
+      }
     }
   };
 
@@ -108,8 +120,14 @@ function ProductList() {
       setRecords(records.filter((record) => record.id !== recordId));
       toast.success("Record deleted successfully!");
     } catch (error) {
-      console.error("Failed to delete the record:", error);
-      toast.error("Failed to delete the record.");
+      if (error.response && error.response.status === 401) {
+        toast.error('Unauthorized access. Invalid Token/Token Expired');
+        localStorage.removeItem("Authorization");
+        navigate('/login');
+        
+      } else {
+        toast.error(error.response?.data?.message);
+      }
     }
   };
 
@@ -144,20 +162,28 @@ function ProductList() {
        <button onClick={handleAddBrandClick}> Add Product </button>
        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onBrandAdded={refreshBrands} brandId={Number(id)}/>
       </div>
+      {
+        (records?.length !==0)?
       <table className="brand-records-table">
         <thead>
           <tr>
-        
+            <th>Product Code</th>
             <th>Product Name</th>
             <th>Product Description</th>
-            <th>Product Date</th>
+            <th>Product Creation Date</th>
+            <th>Brand Name</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
           {records.map((record) => (
             <tr key={record.id}>
-           
+               <td>
+              <Link to={`/categorylist?productId=${record.id}`}>{
+                  record.productcode
+                }</Link>
+              
+              </td>
               <td>
               {editing === record.id ? (
                   <input
@@ -184,6 +210,9 @@ function ProductList() {
                 {
                   new Date(record.created_at).toLocaleDateString()
                 }
+              </td>
+              <td>
+            {record.brand_name}
               </td>
               <td>
                 {editing === record.id ? (
@@ -221,7 +250,11 @@ function ProductList() {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table>:
+      <div>
+      <h2>No Product Exist for Brand. Please Create Product</h2>
+    </div>
+    }
       <div className="pagination-container">
         <button onClick={handlePreviousPage} disabled={page === 1}>
           Previous

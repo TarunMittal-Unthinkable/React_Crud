@@ -16,6 +16,7 @@ function BrandList() {
   const token = localStorage.getItem("Authorization");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refresh, setRefresh] = useState(false);
+  const navigate= useNavigate()
 
   useEffect(() => {
     const fetchRecords = async () => {
@@ -32,7 +33,14 @@ function BrandList() {
         setRecords(response?.data?.data.records|| []);
         setTotalPages(response?.data?.data?.pages || 1);
       } catch (error) {
-        console.error("Failed to fetch records:", error);
+        if (error.response && error.response.status === 401) {
+          toast.error('Unauthorized access. Invalid Token/Token Expired');
+          localStorage.removeItem("Authorization");
+          navigate('/login');
+          
+        } else {
+          toast.error(error.response?.data?.message);
+        }
       }
     };
     if (token) {
@@ -46,7 +54,6 @@ function BrandList() {
   };
 
   const handleEdit = (record) => {
-    console.log("",record);
     setEditing(record.id);
     setEditedRecord({ ...record });
   };
@@ -80,8 +87,14 @@ function BrandList() {
       setEditing(null);
       toast.success("Record updated successfully!");
     } catch (error) {
-      console.error("Failed to update the record:", error);
-      toast.error("Failed to update the record.");
+      if (error.response && error.response.status === 401) {
+        toast.error('Unauthorized access. Invalid Token/Token Expired');
+        localStorage.removeItem("Authorization");
+        navigate('/login');
+        
+      } else {
+        toast.error(error.response?.data?.message);
+      }
     }
   };
 
@@ -98,8 +111,14 @@ function BrandList() {
       setRecords(records.filter((record) => record.id !== recordId));
       toast.success("Record deleted successfully!");
     } catch (error) {
-      console.error("Failed to delete the record:", error);
-      toast.error("Failed to delete the record.");
+      if (error.response && error.response.status === 401) {
+        toast.error('Unauthorized access. Invalid Token/Token Expired');
+        localStorage.removeItem("Authorization");
+        navigate('/login');
+        
+      } else {
+        toast.error(error.response?.data?.message);
+      }
     }
   };
 
@@ -134,6 +153,9 @@ function BrandList() {
        <button onClick={handleAddBrandClick}> Add Brand </button>
        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onBrandAdded={refreshBrands} />
       </div>
+      {
+        (records?.length !==0)?
+    
       <table className="brand-records-table">
         <thead>
           <tr>
@@ -148,7 +170,7 @@ function BrandList() {
           {records.map((record) => (
             <tr key={record.id}>
               <td>
-              <Link to={`/productlist?id=${record.id}`}>{
+              <Link to={`/productlist?brandId=${record.id}`}>{
                   record.brandcode
                 }</Link>
               
@@ -216,7 +238,11 @@ function BrandList() {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table> :
+      <div>
+      <h2>No Brand Exist for User. Please Create Brand</h2>
+    </div>
+    }
       <div className="pagination-container">
         <button onClick={handlePreviousPage} disabled={page === 1}>
           Previous

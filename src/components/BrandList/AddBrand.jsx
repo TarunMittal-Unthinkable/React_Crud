@@ -3,11 +3,13 @@ import axios from "axios";
 import "./BrandList.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 function Modal({ isOpen, onClose,onBrandAdded }) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const token = localStorage.getItem("Authorization");
+  const navigate = useNavigate();
 
   const handleSave = async () => {
 
@@ -28,7 +30,14 @@ function Modal({ isOpen, onClose,onBrandAdded }) {
         onClose();
         onBrandAdded();
     } catch (error) {
+      if (error.response && error.response.status === 401) {
+        toast.error('Unauthorized access. Invalid Token/Token Expired');
+        localStorage.removeItem("Authorization");
+        navigate('/login');
+        
+      } else {
         toast.error(error.response?.data?.message);
+      }
     }
   };
 
@@ -43,7 +52,7 @@ function Modal({ isOpen, onClose,onBrandAdded }) {
 
 
   return (
-    
+
     <div className="modal">
     <div className="modal-content">
       <h2>Add Brand</h2>

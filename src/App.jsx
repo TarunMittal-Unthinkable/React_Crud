@@ -1,6 +1,3 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import Login from './components/LoginForm/LoginForm.jsx'
 import Signup from './components/SignUp/SignUp.jsx'
@@ -12,10 +9,12 @@ import {
   Navigate,
 } from "react-router-dom";
 import "./App.css";
-import BrandList from './components/BrandList/BrandList.jsx'
+import BrandList from './components/BrandList/BrandList.jsx';
+import AuthenticatedRoute from "./components/Auth/AuthenticatedRoute.jsx"; 
+import AuthenticatedLayout from "./components/Auth/AuthenticatedLayout.jsx"; 
+import Category from "./components/Category/Category.jsx"
 
 function App() {
-
 
   return (
     <>
@@ -25,13 +24,23 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Signup />} />
+            <Route
+              element={
+                <AuthenticatedRoute>
+                  <AuthenticatedLayout />
+                </AuthenticatedRoute>
+              }
+            >
             <Route path="/brandlist" element={<BrandList />} />
             <Route path="/productlist" element={<ProductList />} />
+            <Route path="/categorylist" element={<Category/>} />
+            </Route>
             <Route path="*" element={<Navigate replace to="/login" />} />
           </Routes>
         </div>
       </Router>
-    </>
+      </>
+   
   )
 }
 

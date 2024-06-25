@@ -10,6 +10,14 @@ function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Check for token in localStorage
+    const token = localStorage.getItem("Authorization");
+    if (token) {
+      navigate("/brandlist");
+    }
+  }, [navigate]);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
@@ -54,7 +62,7 @@ function Login() {
         </div>
         <button type="submit">Login</button>
         <p className="form-link">
-          Don’t have an account? 
+          Don’t have an account? <Link to="/register">Register</Link>
         </p>
       </form>
     </div>
