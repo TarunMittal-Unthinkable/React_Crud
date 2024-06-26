@@ -4,6 +4,7 @@ import "./BrandList.css";
 import { ToastContainer,toast } from "react-toastify";
 import Modal from './AddBrand.jsx'
 import { useNavigate, Link } from "react-router-dom";
+import { debounce } from 'lodash';
 
 function BrandList() {
   const [records, setRecords] = useState([]);
@@ -17,10 +18,25 @@ function BrandList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const navigate= useNavigate()
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+
+  useEffect(() => {
+    const handler = debounce(() => {
+      setDebouncedSearch(search);
+    }, 800); 
+    handler();
+
+    // Cleanup function
+    return () => {
+      handler.cancel();
+    };
+  }, [search]);
+
 
   useEffect(() => {
     const fetchRecords = async () => {
       try {
+        //debugger;
         const response = await axios.get(
           "http://localhost:3000/api/brand",
           {
@@ -47,7 +63,7 @@ function BrandList() {
       fetchRecords();
       setRefresh(false);
     }
-  }, [token, page, limit, search,refresh]);
+  }, [token, page, limit, debouncedSearch,refresh]);
 
   const handleCancel = () => {
     setEditing(null)

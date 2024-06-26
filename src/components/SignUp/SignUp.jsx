@@ -4,6 +4,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../SignUp/SignUp.css";
+import {handleEncryptPassword} from '../Auth/PasswordAuth.js';
 
 function Register() {
   const navigate = useNavigate();
@@ -13,8 +14,12 @@ function Register() {
     event.preventDefault();
 
     const fd = new FormData(event.target);
+    const password = fd.get('password');
+    const encryptedPassword=await handleEncryptPassword(password)
     const data = Object.fromEntries(fd.entries());
-    console.log(data);
+    data.password=encryptedPassword.encryptedPassword;
+    data.nonce=encryptedPassword.nonce
+    
 
     try {
       await axios.post("http://localhost:3000/api/users/register", data);

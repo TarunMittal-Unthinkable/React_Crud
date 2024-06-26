@@ -2,15 +2,16 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Category.css";
 import { ToastContainer,toast } from "react-toastify";
-//import Modal from './AddCategory.jsx'
+import Modal from './AddCategory.jsx'
 import { useNavigate, Link } from "react-router-dom";
 import { useLocation } from 'react-router-dom';
 import Card from './CategoryCard.jsx'
+import { debounce } from 'lodash';
 
 function ProductList() {
   const [records, setRecords] = useState([]);
   const [page, setPage] = useState(1);
-  const [limit] = useState(10);
+  const [limit] = useState(12);
   const [search, setSearch] = useState("");
   const [totalPages, setTotalPages] = useState(1);
   const [editing, setEditing] = useState(null);
@@ -20,12 +21,25 @@ function ProductList() {
   const [refresh, setRefresh] = useState(false);
   const location = useLocation();
   const navigate= useNavigate()
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
 
   function useQuery() {
     return new URLSearchParams(location.search);
   }
   let query = useQuery();
   let id = query.get('productId');
+// console.log("productId",id);
+  useEffect(() => {
+    const handler = debounce(() => {
+      setDebouncedSearch(search);
+    }, 800); 
+    handler();
+
+    // Cleanup function
+    return () => {
+      handler.cancel();
+    };
+  }, [search]);
 
   useEffect(() => {
     const fetchRecords = async () => {
@@ -40,8 +54,8 @@ function ProductList() {
             params: { page, limit, search,productId:id }
           }
         );
-        setRecords(response?.data?.data|| []);
-        setTotalPages(response?.data?.pages || 1);
+        setRecords(response?.data?.data.records|| []);
+        setTotalPages(response?.data?.data?.pages || 1);
       } catch (error) {
         if (error.response && error.response.status === 401) {
           toast.error('Unauthorized access. Invalid Token/Token Expired');
@@ -57,7 +71,7 @@ function ProductList() {
       fetchRecords();
       setRefresh(false);
     }
-  }, [token, page, limit, search,refresh]);
+  }, [token, page, limit, debouncedSearch,refresh]);
 
 //   const handleCancel = () => {
 //     setEditing(null)
@@ -71,9 +85,9 @@ function ProductList() {
 //   const handleChange = (e, field) => {
 //     setEditedRecord((prev) => ({ ...prev, [field]: e.target.value }));
 //   };
-//   const refreshBrands = () => {
-//     setRefresh(true);
-//   };
+  const refreshBrands = () => {
+    setRefresh(true);
+  };
 
 
 //   const handleSave = async () => {
@@ -161,24 +175,27 @@ console.log(records);
           placeholder="Search records"
         />
        <button onClick={handleAddBrandClick}> Add Category </button>
-       {/* <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onBrandAdded={refreshBrands} productId={Number(id)}/> */}
+       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onBrandAdded={refreshBrands} productId={Number(id)}/>
       </div>
-     
+      <div className="wrapper">
         {(records?.length !==0)?
         (records.map((record) => (
-            <div className="wrapper">
+            
             <Card
-                img="https://images.unsplash.com/photo-1569235080412-01b4eefa5fbe?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80"
+                key={record.id}
+                img="https://images.unsplash.com/photo-1475178626620-a4d074967452?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGplYW5zfGVufDB8fDB8fHww"
                 title={record.name}
                 description={record.description}
                 price={record.priceperquantity}
+                {...record}
                     />
-                     </div>
+                     
           ))):
       <div>
       <h2>No Category Exist for Product. Please Create Category</h2>
     </div>
 }
+</div>
       <div className="pagination-container">
         <button onClick={handlePreviousPage} disabled={page === 1}>
           Previous

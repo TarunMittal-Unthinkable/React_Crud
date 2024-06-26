@@ -4,6 +4,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./LoginForm.css";
 import axios from "axios";
+import {handleEncryptPassword} from '../Auth/PasswordAuth.js';
+
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -21,9 +23,13 @@ function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
+
+      const { encryptedPassword, nonce } = await handleEncryptPassword(password);
+
       const response = await axios.post("http://localhost:3000/api/users/login", {
         email,
-        password,
+        password: encryptedPassword, 
+        nonce,
       });
       localStorage.setItem("Authorization", response.headers.authorization); 
       // localStorage.setItem("RefreshToken", response.headers.RefreshToken); 

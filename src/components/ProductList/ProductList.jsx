@@ -5,7 +5,7 @@ import { ToastContainer,toast } from "react-toastify";
 import Modal from './AddProduct.jsx'
 import { useNavigate, Link } from "react-router-dom";
 import { useLocation } from 'react-router-dom';
-
+import { debounce } from 'lodash';
 
 function ProductList() {
   const [records, setRecords] = useState([]);
@@ -20,12 +20,25 @@ function ProductList() {
   const [refresh, setRefresh] = useState(false);
   const location = useLocation();
   const navigate= useNavigate()
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
 
   function useQuery() {
     return new URLSearchParams(location.search);
   }
   let query = useQuery();
   let id = query.get('brandId');
+
+  useEffect(() => {
+    const handler = debounce(() => {
+      setDebouncedSearch(search);
+    }, 800); 
+    handler();
+
+    // Cleanup function
+    return () => {
+      handler.cancel();
+    };
+  }, [search]);
 
   useEffect(() => {
     const fetchRecords = async () => {
@@ -56,7 +69,7 @@ function ProductList() {
       fetchRecords();
       setRefresh(false);
     }
-  }, [token, page, limit, search,refresh]);
+  }, [token, page, limit, debouncedSearch,refresh]);
 
   const handleCancel = () => {
     setEditing(null)
