@@ -6,6 +6,8 @@ import Modal from './AddProduct.jsx'
 import { useNavigate, Link } from "react-router-dom";
 import { useLocation } from 'react-router-dom';
 import { debounce } from 'lodash';
+import constant from "../../utils/constant";
+import endpoint from "../../utils/endpoint";
 
 function ProductList() {
   const [records, setRecords] = useState([]);
@@ -44,7 +46,7 @@ function ProductList() {
     const fetchRecords = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3000/api/product",
+          `http://localhost:3000/${endpoint.PRODUCT}`,
           {
             headers: {
               Authorization: `${token}`,
@@ -55,8 +57,8 @@ function ProductList() {
         setRecords(response?.data?.data.records|| []);
         setTotalPages(response?.data?.data?.pages || 1);
       } catch (error) {
-        if (error.response && error.response.status === 401) {
-          toast.error('Unauthorized access. Invalid Token/Token Expired');
+        if (error.response && error.response.status === constant.UNAUTHORIZED_STATUS) {
+          toast.error(constant.UNAUTHORIZED_ACCESS);
           localStorage.removeItem("Authorization");
           navigate('/login');
           
@@ -92,7 +94,7 @@ function ProductList() {
     try {
        // debugger;
       const response = await axios.put(
-        `http://localhost:3000/api/product/${editedRecord.id}`,
+        `http://localhost:3000/${endpoint.PRODUCT}/${editedRecord.id}`,
         {name:editedRecord.name,
         description:editedRecord.description},
         {
@@ -107,10 +109,10 @@ function ProductList() {
         )
       );
       setEditing(null);
-      toast.success("Record updated successfully!");
+      toast.success(constant.PRODUCT_UPDATED);
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        toast.error('Unauthorized access. Invalid Token/Token Expired');
+      if (error.response && error.response.status === constant.UNAUTHORIZED_STATUS) {
+        toast.error(constant.UNAUTHORIZED_ACCESS);
         localStorage.removeItem("Authorization");
         navigate('/login');
         
@@ -123,7 +125,7 @@ function ProductList() {
   const handleDelete = async (recordId) => {
     try {
       await axios.delete(
-        `http://localhost:3000/api/product/${recordId}`,
+        `http://localhost:3000/${endpoint.PRODUCT}/${recordId}`,
         {
           headers: {
             Authorization: `${token}`,
@@ -131,10 +133,10 @@ function ProductList() {
         }
       );
       setRecords(records.filter((record) => record.id !== recordId));
-      toast.success("Record deleted successfully!");
+      toast.success(constant.PRODUCT_DELETED);
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        toast.error('Unauthorized access. Invalid Token/Token Expired');
+      if (error.response && error.response.status === constant.UNAUTHORIZED_STATUS) {
+        toast.error(constant.UNAUTHORIZED_ACCESS);
         localStorage.removeItem("Authorization");
         navigate('/login');
         

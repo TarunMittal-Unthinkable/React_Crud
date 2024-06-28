@@ -17,7 +17,7 @@ function Modal({ isOpen, onClose,onBrandAdded,brandId }) {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/product", data,
+        `http://localhost:3000/${endpoint.PRODUCT}`, data,
         {
           headers: {
             Authorization: `${token}`,
@@ -30,8 +30,8 @@ function Modal({ isOpen, onClose,onBrandAdded,brandId }) {
         onClose();
         onBrandAdded();
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        toast.error('Unauthorized access. Invalid Token/Token Expired');
+      if (error.response && error.response.status === constant.UNAUTHORIZED_STATUS) {
+        toast.error(constant.UNAUTHORIZED_ACCESS);
         localStorage.removeItem("Authorization");
         navigate('/login');
         

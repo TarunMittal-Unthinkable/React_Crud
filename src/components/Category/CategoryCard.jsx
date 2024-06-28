@@ -1,103 +1,135 @@
+import React, { useState } from 'react';
+import CategoryForm from './CategoryForm';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
+import constant from '../../utils/constant';
+import endpoint from '../../utils/endpoint';
+import { useNavigate } from "react-router-dom";
 
-function toggleMenu(id) {
-  const menu = document.getElementById(`menu-${id}`);
-  if (menu.style.display === "block") {
-      menu.style.display = "none";
-  } else {
-      menu.style.display = "block";
-  }
+function Card(props) {
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [editData, setEditData] = useState(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const token = localStorage.getItem("Authorization");
+  const navigate= useNavigate()
+
+  const toggleMenu = (id) => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleEdit = (props) => {
+    const data = {
+      name: props.name,
+      description: props.description,
+      sizes: props.sizes,
+      colors: props.colors,
+      priceperquantity: props.priceperquantity,
+      totalQty: props.totalQty,
+      totalSold: props.totalSold
+    };
+    setEditData(data);
+    setIsFormVisible(true);
+    setIsMenuOpen(false);
+  };
+
+  const handleSave = async (data) => {
+    data.priceperquantity = parseFloat(data.priceperquantity);
+    data.totalSold = parseInt(data.totalSold);
+    data.totalQty = parseInt(data.totalQty);
+    try {
+      await axios.put(
+        `http://localhost:3000/${endpoint.CATEGORY}/${props.id}`,
+        data,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+      toast.success(constant.CATEGORY_UPDATED);
+      handleCloseForm();
+      props.onBrandAdded();
+    } catch (error) {
+      if (error.response && error.response.status === constant.UNAUTHORIZED_STATUS) {
+        toast.error(constant.UNAUTHORIZED_ACCESS);
+        localStorage.removeItem("Authorization");
+        navigate('/login');
+      } else {
+        toast.error(error.response?.data?.message);
+      }
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(
+        `http://localhost:3000/${endpoint.CATEGORY}/${id}`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+      toast.success(constant.CATEGORY_DELETED);
+      props.onBrandAdded();
+    } catch (error) {
+      if (error.response && error.response.status === constant.UNAUTHORIZED_STATUS) {
+        localStorage.removeItem("Authorization");
+        navigate('/login');
+        toast.error(constant.UNAUTHORIZED_ACCESS);
+        
+      } else {
+        toast.error(error.response?.data?.message);
+      }
+    }
+  };
+
+  const handleCloseForm = () => {
+    setIsFormVisible(false);
+    setEditData(null);
+  };
+
+  return (
+    <div className="card">
+      <div className="card__img-wrapper">
+        <img src={props.img} className="card__img" />
+        <div className="card__menu">
+          <button className="card__menu-btn" onClick={() =>toggleMenu(props.id)}>⋮</button>
+          {isMenuOpen && (
+            <div className="card__menu-content" id={`menu-${props.id}`}>
+              <button onClick={() => handleEdit(props)}>Edit</button>
+              <button onClick={() => handleDelete(props.id)}>Delete</button>
+            </div>
+          )}
+        </div>
+        {isFormVisible && (
+          <div className="form-overlay">
+            <CategoryForm
+              isedit={true}
+              handleAction={handleSave}
+              onClose={handleCloseForm}
+              initialValues={editData}
+            />
+          </div>
+        )}
+      </div>
+      <div className="card__body">
+      <h3 className="card__color"><span>Category Code:</span> {props.categorycode}</h3>
+        <h2 className="card__title">{props.title}</h2>
+        <p className="card__description">{props.description}</p>
+        <div className="card__info">
+          <h3 className="card__color"><span>Color:</span> {props.colors}</h3>
+          <h3 className="card__size"><span>Size:</span> {props.sizes}</h3>
+        </div>
+        <div className="card__info">
+          <h3 className="card__totalqty"><span>Quantity:</span> {props.totalQty}</h3>
+          <h3 className="card__totalsold"><span>Sold:</span> {props.totalSold}</h3>
+        </div>
+        <h3 className="card__price">Rs {props.price}</h3>
+      </div>
+    </div>
+  );
 }
 
-// function handleEdit(id) {
-//   // Implement edit functionality
-//   console.log(`Edit ${id}`);
-// }
-
-
-
-const handleEdit = async(props) => {
-  try {
-    const {name,description,price,totalQty,totalSold,colors,sizes} = props
-    const response = await axios.put(
-      `http://localhost:3000/api/category/${id}`,
-      {name:name,
-      description:description,
-      totalQty:totalQty,
-      totalSold:totalSold,
-      colors:colors,
-      sizes:sizes,
-      priceperquantity:price
-    },
-      {
-        headers: {
-          Authorization: `${token}`,
-        },
-      }
-    );
-    setRecords(
-      records.map((rec) =>
-        rec.id === editedRecord.id ? { ...rec, ...editedRecord } : rec
-      )
-    );
-    setEditing(null);
-    toast.success("Record updated successfully!");
-  } catch (error) {
-    if (error.response && error.response.status === 401) {
-      toast.error('Unauthorized access. Invalid Token/Token Expired');
-      localStorage.removeItem("Authorization");
-      navigate('/login');
-      
-    } else {
-      toast.error(error.response?.data?.message);
-    }
-  }
-};
-
-
-
-
-
-
-
-
-// function handleDelete(id) {
-//   // Implement delete functionality
-//   console.log(`Delete ${id}`);
-// }
-
-  function Card(props) {
-
-    return (
-      <div className="card">
-      <div className="card__img-wrapper">
-          <img src={props.img} className="card__img" />
-          <div className="card__menu">
-              <button className="card__menu-btn" onClick={() => toggleMenu(props.id)}>⋮</button>
-              <div className="card__menu-content" id={`menu-${props.id}`}>
-                  <button onClick={() => handleEdit(props)}>Edit</button>
-                  <button onClick={() => handleDelete(props)}>Delete</button>
-              </div>
-          </div>
-      </div>
-        <div className="card__body">
-            <h2 className="card__title">{props.title}</h2>
-            <p className="card__description">{props.description}</p>
-            <div className="card__info">
-                <h3 className="card__color"><span>Color:</span> {props.colors}</h3>
-                <h3 className="card__size"><span>Size:</span> {props.sizes}</h3>
-            </div>
-            <div className="card__info">
-                <h3 className="card__totalqty"><span>Quantity:</span> {props.totalQty}</h3>
-                <h3 className="card__totalsold"><span>Sold:</span> {props.totalSold}</h3>
-            </div>
-            <h3 className="card__price">Rs {props.price}</h3>
-        </div>
-</div>
-
-
-    );
-  }
-  
-export default Card
-  
-
+export default Card;

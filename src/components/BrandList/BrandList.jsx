@@ -5,11 +5,13 @@ import { ToastContainer,toast } from "react-toastify";
 import Modal from './AddBrand.jsx'
 import { useNavigate, Link } from "react-router-dom";
 import { debounce } from 'lodash';
+import constant  from "../../utils/constant";
+import endpoint from "../../utils/endpoint";
 
 function BrandList() {
   const [records, setRecords] = useState([]);
   const [page, setPage] = useState(1);
-  const [limit] = useState(10); // You can make this dynamic if needed
+  const [limit] = useState(10); 
   const [search, setSearch] = useState("");
   const [totalPages, setTotalPages] = useState(1);
   const [editing, setEditing] = useState(null);
@@ -38,7 +40,7 @@ function BrandList() {
       try {
         //debugger;
         const response = await axios.get(
-          "http://localhost:3000/api/brand",
+          `http://localhost:3000/${endpoint.BRAND}`,
           {
             headers: {
               Authorization: `${token}`,
@@ -49,8 +51,8 @@ function BrandList() {
         setRecords(response?.data?.data.records|| []);
         setTotalPages(response?.data?.data?.pages || 1);
       } catch (error) {
-        if (error.response && error.response.status === 401) {
-          toast.error('Unauthorized access. Invalid Token/Token Expired');
+        if (error.response && error.response.status === constant.UNAUTHORIZED_STATUS) {
+          toast.error(constant.UNAUTHORIZED_ACCESS);
           localStorage.removeItem("Authorization");
           navigate('/login');
           
@@ -86,7 +88,7 @@ function BrandList() {
     try {
        // debugger;
       const response = await axios.put(
-        `http://localhost:3000/api/brand/${editedRecord.id}`,
+        `http://localhost:3000/${endpoint.BRAND}/${editedRecord.id}`,
         {name:editedRecord.name,
         description:editedRecord.description},
         {
@@ -101,10 +103,10 @@ function BrandList() {
         )
       );
       setEditing(null);
-      toast.success("Record updated successfully!");
+      toast.success(constant.BRAND_UPDATED);
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        toast.error('Unauthorized access. Invalid Token/Token Expired');
+      if (error.response && error.response.status === constant.UNAUTHORIZED_STATUS) {
+        toast.error(constant.UNAUTHORIZED_ACCESS);
         localStorage.removeItem("Authorization");
         navigate('/login');
         
@@ -117,7 +119,7 @@ function BrandList() {
   const handleDelete = async (recordId) => {
     try {
       await axios.delete(
-        `http://localhost:3000/api/brand/${recordId}`,
+        `http://localhost:3000/${endpoint.BRAND}/${recordId}`,
         {
           headers: {
             Authorization: `${token}`,
@@ -125,10 +127,10 @@ function BrandList() {
         }
       );
       setRecords(records.filter((record) => record.id !== recordId));
-      toast.success("Record deleted successfully!");
+      toast.success(constant.BRAND_DELETED);
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        toast.error('Unauthorized access. Invalid Token/Token Expired');
+      if (error.response && error.response.status === constant.UNAUTHORIZED_STATUS) {
+        toast.error(constant.UNAUTHORIZED_ACCESS);
         localStorage.removeItem("Authorization");
         navigate('/login');
         

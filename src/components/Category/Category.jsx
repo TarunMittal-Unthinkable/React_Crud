@@ -3,10 +3,11 @@ import axios from "axios";
 import "./Category.css";
 import { ToastContainer,toast } from "react-toastify";
 import Modal from './AddCategory.jsx'
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useLocation } from 'react-router-dom';
 import Card from './CategoryCard.jsx'
 import { debounce } from 'lodash';
+import endpoint from "../../utils/endpoint";
 
 function ProductList() {
   const [records, setRecords] = useState([]);
@@ -14,8 +15,6 @@ function ProductList() {
   const [limit] = useState(12);
   const [search, setSearch] = useState("");
   const [totalPages, setTotalPages] = useState(1);
-  const [editing, setEditing] = useState(null);
-  const [editedRecord, setEditedRecord] = useState({});
   const token = localStorage.getItem("Authorization");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refresh, setRefresh] = useState(false);
@@ -46,7 +45,7 @@ function ProductList() {
       try {
         
         const response = await axios.get(
-          "http://localhost:3000/api/category",
+          `http://localhost:3000/${endpoint.CATEGORY}`,
           {
             headers: {
               Authorization: `${token}`,
@@ -57,8 +56,8 @@ function ProductList() {
         setRecords(response?.data?.data.records|| []);
         setTotalPages(response?.data?.data?.pages || 1);
       } catch (error) {
-        if (error.response && error.response.status === 401) {
-          toast.error('Unauthorized access. Invalid Token/Token Expired');
+        if (error.response && error.response.status === constant.UNAUTHORIZED_STATUS) {
+          toast.error(constant.UNAUTHORIZED_ACCESS);
           localStorage.removeItem("Authorization");
           navigate('/login');
           
@@ -72,80 +71,9 @@ function ProductList() {
       setRefresh(false);
     }
   }, [token, page, limit, debouncedSearch,refresh]);
-
-//   const handleCancel = () => {
-//     setEditing(null)
-//   };
-
-//   const handleEdit = (record) => {
-//     setEditing(record.id);
-//     setEditedRecord({ ...record });
-//   };
-
-//   const handleChange = (e, field) => {
-//     setEditedRecord((prev) => ({ ...prev, [field]: e.target.value }));
-//   };
   const refreshBrands = () => {
     setRefresh(true);
   };
-
-
-//   const handleSave = async () => {
-//     try {
-//        // debugger;
-//       const response = await axios.put(
-//         `http://localhost:3000/api/product/${editedRecord.id}`,
-//         {name:editedRecord.name,
-//         description:editedRecord.description},
-//         {
-//           headers: {
-//             Authorization: `${token}`,
-//           },
-//         }
-//       );
-//       setRecords(
-//         records.map((rec) =>
-//           rec.id === editedRecord.id ? { ...rec, ...editedRecord } : rec
-//         )
-//       );
-//       setEditing(null);
-//       toast.success("Record updated successfully!");
-//     } catch (error) {
-//       if (error.response && error.response.status === 401) {
-//         toast.error('Unauthorized access. Invalid Token/Token Expired');
-//         localStorage.removeItem("Authorization");
-//         navigate('/login');
-        
-//       } else {
-//         toast.error(error.response?.data?.message);
-//       }
-//     }
-//   };
-
-//   const handleDelete = async (recordId) => {
-//     try {
-//       await axios.delete(
-//         `http://localhost:3000/api/product/${recordId}`,
-//         {
-//           headers: {
-//             Authorization: `${token}`,
-//           },
-//         }
-//       );
-//       setRecords(records.filter((record) => record.id !== recordId));
-//       toast.success("Record deleted successfully!");
-//     } catch (error) {
-//       if (error.response && error.response.status === 401) {
-//         toast.error('Unauthorized access. Invalid Token/Token Expired');
-//         localStorage.removeItem("Authorization");
-//         navigate('/login');
-        
-//       } else {
-//         toast.error(error.response?.data?.message);
-//       }
-//     }
-//   };
-
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
     setPage(1); // Reset to first page on search change
@@ -162,7 +90,6 @@ function ProductList() {
     setIsModalOpen(true);
   };
 
-console.log(records);
   return (
     <div className="brand-records-container">
       <ToastContainer />
@@ -188,6 +115,9 @@ console.log(records);
                 description={record.description}
                 price={record.priceperquantity}
                 {...record}
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onBrandAdded={refreshBrands}
                     />
                      
           ))):

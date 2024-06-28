@@ -4,6 +4,9 @@ import "./BrandList.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import constant from "../../utils/constant";
+import endpoint from "../../utils/endpoint";
+
 
 function Modal({ isOpen, onClose,onBrandAdded }) {
   const [name, setName] = useState('');
@@ -17,21 +20,21 @@ function Modal({ isOpen, onClose,onBrandAdded }) {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/brand", data,
+        `http://localhost:3000/${endpoint.BRAND}`, data,
         {
           headers: {
             Authorization: `${token}`,
           }
         }
       );
-       toast.success("Brand Created Successfully");
+       toast.success(constant.BRAND_CREATED);
         setName(''); 
         setDescription('');
         onClose();
         onBrandAdded();
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        toast.error('Unauthorized access. Invalid Token/Token Expired');
+      if (error.response && error.response.status === constant.UNAUTHORIZED_STATUS) {
+        toast.error(constant.UNAUTHORIZED_ACCESS);
         localStorage.removeItem("Authorization");
         navigate('/login');
         
