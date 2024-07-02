@@ -4,12 +4,15 @@ import "./ProductList";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import endpoint from "../../utils/endpoint";
+import constant from "../../utils/constant";
 
 function Modal({ isOpen, onClose,onBrandAdded,brandId }) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const token = localStorage.getItem("Authorization");
   const navigate = useNavigate();
+  const BASE_URL= import.meta.env.VITE_BASE_URL;
 
   const handleSave = async () => {
 
@@ -17,7 +20,7 @@ function Modal({ isOpen, onClose,onBrandAdded,brandId }) {
 
     try {
       const response = await axios.post(
-        `http://localhost:3000/${endpoint.PRODUCT}`, data,
+        `${BASE_URL}/${endpoint.PRODUCT}`, data,
         {
           headers: {
             Authorization: `${token}`,
@@ -63,6 +66,7 @@ function Modal({ isOpen, onClose,onBrandAdded,brandId }) {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          required
         />
       </div>
       <div className="form-group">
@@ -71,6 +75,7 @@ function Modal({ isOpen, onClose,onBrandAdded,brandId }) {
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          required
         ></textarea>
       </div>
       <div className="button-container">

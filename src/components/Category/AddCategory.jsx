@@ -11,7 +11,7 @@ import endpoint from "../../utils/endpoint";
 function Modal({ isOpen, onClose,onBrandAdded,productId }) {
   const token = localStorage.getItem("Authorization");
   const navigate = useNavigate();
-
+  const BASE_URL= import.meta.env.VITE_BASE_URL;
   const handleSave = async (data) => {
     data.productId=productId;
     data.priceperquantity=parseFloat(data.priceperquantity);
@@ -19,7 +19,7 @@ function Modal({ isOpen, onClose,onBrandAdded,productId }) {
     data.totalQty=parseInt(data.totalQty);
 
     try {
-      await axios.post(`http://localhost:3000/${endpoint.CATEGORY}`, data,
+      await axios.post(`${BASE_URL}/${endpoint.CATEGORY}`, data,
         {
           headers: {
             Authorization: `${token}`,

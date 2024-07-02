@@ -78,7 +78,7 @@ body {
   .card__menu {
     position: absolute;
     top: 10px;
-    right: 10px;
+    right: 4px;
   }
   
   .card__menu-btn {
@@ -86,7 +86,7 @@ body {
     border: none;
     cursor: pointer;
     font-size: 24px;
-    z-index: 2; 
+    z-index: 4; 
   }
   
   .card__menu-content {

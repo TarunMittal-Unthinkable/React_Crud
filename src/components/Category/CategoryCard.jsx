@@ -13,6 +13,7 @@ function Card(props) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const token = localStorage.getItem("Authorization");
   const navigate= useNavigate()
+  const BASE_URL= import.meta.env.VITE_BASE_URL;
 
   const toggleMenu = (id) => {
     setIsMenuOpen(!isMenuOpen);
@@ -39,7 +40,7 @@ function Card(props) {
     data.totalQty = parseInt(data.totalQty);
     try {
       await axios.put(
-        `http://localhost:3000/${endpoint.CATEGORY}/${props.id}`,
+        `${BASE_URL}/${endpoint.CATEGORY}/${props.id}`,
         data,
         {
           headers: {
@@ -64,7 +65,7 @@ function Card(props) {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `http://localhost:3000/${endpoint.CATEGORY}/${id}`,
+        `${BASE_URL}/${endpoint.CATEGORY}/${id}`,
         {
           headers: {
             Authorization: `${token}`,

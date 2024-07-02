@@ -13,14 +13,14 @@ function Modal({ isOpen, onClose,onBrandAdded }) {
   const [description, setDescription] = useState('');
   const token = localStorage.getItem("Authorization");
   const navigate = useNavigate();
-
+  const BASE_URL= import.meta.env.VITE_BASE_URL;
   const handleSave = async () => {
 
     const data = { name, description };
 
     try {
       const response = await axios.post(
-        `http://localhost:3000/${endpoint.BRAND}`, data,
+        `${BASE_URL}/${endpoint.BRAND}`, data,
         {
           headers: {
             Authorization: `${token}`,
@@ -66,6 +66,7 @@ function Modal({ isOpen, onClose,onBrandAdded }) {
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          required
         />
       </div>
       <div className="form-group">
@@ -74,6 +75,7 @@ function Modal({ isOpen, onClose,onBrandAdded }) {
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          required
         ></textarea>
       </div>
       <div className="button-container">

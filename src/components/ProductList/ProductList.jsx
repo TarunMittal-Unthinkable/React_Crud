@@ -8,6 +8,8 @@ import { useLocation } from 'react-router-dom';
 import { debounce } from 'lodash';
 import constant from "../../utils/constant";
 import endpoint from "../../utils/endpoint";
+import Loader from '../Loader/Loader.jsx';
+import DynamicBreadcrumbs from "../BreadCrumb/BreadCrumb";
 
 function ProductList() {
   const [records, setRecords] = useState([]);
@@ -23,6 +25,10 @@ function ProductList() {
   const location = useLocation();
   const navigate= useNavigate()
   const [debouncedSearch, setDebouncedSearch] = useState(search);
+  const BASE_URL= import.meta.env.VITE_BASE_URL;
+  const [loading, setLoading] = useState(false);
+  const [sortField, setSortField] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
 
   function useQuery() {
     return new URLSearchParams(location.search);
@@ -43,19 +49,23 @@ function ProductList() {
   }, [search]);
 
   useEffect(() => {
+    setLoading(true);
     const fetchRecords = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/${endpoint.PRODUCT}`,
+          `${BASE_URL}/${endpoint.PRODUCT}`,
           {
             headers: {
               Authorization: `${token}`,
             },
-            params: { page, limit, search,brandId:id }
+            params: { page, limit, search,brandId:id,sortField, sortOrder }
           }
         );
-        setRecords(response?.data?.data.records|| []);
-        setTotalPages(response?.data?.data?.pages || 1);
+        setTimeout(() => {
+          setRecords(response?.data?.data?.records || []);
+          setTotalPages(response?.data?.data?.pages || 1);
+          setLoading(false);
+        }, 200);
       } catch (error) {
         if (error.response && error.response.status === constant.UNAUTHORIZED_STATUS) {
           toast.error(constant.UNAUTHORIZED_ACCESS);
@@ -65,13 +75,14 @@ function ProductList() {
         } else {
           toast.error(error.response?.data?.message);
         }
+        setLoading(false);
       }
     };
     if (token) {
       fetchRecords();
       setRefresh(false);
     }
-  }, [token, page, limit, debouncedSearch,refresh]);
+  }, [token, page, limit, debouncedSearch,refresh,sortField, sortOrder]);
 
   const handleCancel = () => {
     setEditing(null)
@@ -94,7 +105,7 @@ function ProductList() {
     try {
        // debugger;
       const response = await axios.put(
-        `http://localhost:3000/${endpoint.PRODUCT}/${editedRecord.id}`,
+        `${BASE_URL}/${endpoint.PRODUCT}/${editedRecord.id}`,
         {name:editedRecord.name,
         description:editedRecord.description},
         {
@@ -125,7 +136,7 @@ function ProductList() {
   const handleDelete = async (recordId) => {
     try {
       await axios.delete(
-        `http://localhost:3000/${endpoint.PRODUCT}/${recordId}`,
+        `${BASE_URL}/${endpoint.PRODUCT}/${recordId}`,
         {
           headers: {
             Authorization: `${token}`,
@@ -161,11 +172,20 @@ function ProductList() {
   const handleAddBrandClick = () => {
     setIsModalOpen(true);
   };
-
+  const handleSort = (field) => {
+    const order = field === sortField && sortOrder === "asc" ? "desc" : "asc";
+    setSortField(field);
+    setSortOrder(order);
+  };
 
   return (
+    <div>
+       <ToastContainer />
+    {loading ? (
+      <Loader />
+    ) : (
     <div className="brand-records-container">
-      <ToastContainer />
+     <DynamicBreadcrumbs />
       <h3>Your Product Records</h3>
       <div className="search-container">
         <input
@@ -181,14 +201,39 @@ function ProductList() {
         (records?.length !==0)?
       <table className="brand-records-table">
         <thead>
-          <tr>
-            <th>Product Code</th>
-            <th>Product Name</th>
-            <th>Product Description</th>
-            <th>Product Creation Date</th>
-            <th>Brand Name</th>
-            <th>Action</th>
-          </tr>
+                <tr>
+                    <th>
+                    Product Code
+                      <span onClick={() => handleSort('productcode')}>
+                        {sortOrder === 'asc' && sortField === 'brandcode' ? '↑' : '↓'}
+                      </span>
+                    </th>
+                    <th>
+                    Product Name
+                      <span onClick={() => handleSort('name')}>
+                        {sortOrder === 'asc' && sortField === 'name' ? '↑' : '↓'}
+                      </span>
+                    </th>
+                    <th>
+                    Product Description
+                      <span onClick={() => handleSort('description')}>
+                        {sortOrder === 'asc' && sortField === 'description' ? '↑' : '↓'}
+                      </span>
+                    </th>
+                    <th>
+                    Brand Name
+                      <span onClick={() => handleSort('description')}>
+                        {sortOrder === 'asc' && sortField === 'description' ? '↑' : '↓'}
+                      </span>
+                    </th>
+                    <th>
+                    Product Creation Date
+                      <span onClick={() => handleSort('created_at')}>
+                        {sortOrder === 'asc' && sortField === 'created_at' ? '↑' : '↓'}
+                      </span>
+                    </th>
+                    <th>Action</th>
+                </tr>
         </thead>
         <tbody>
           {records.map((record) => (
@@ -281,6 +326,8 @@ function ProductList() {
           Next
         </button>
       </div>
+    </div>
+    )}
     </div>
   );
 }

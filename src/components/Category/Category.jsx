@@ -8,6 +8,9 @@ import { useLocation } from 'react-router-dom';
 import Card from './CategoryCard.jsx'
 import { debounce } from 'lodash';
 import endpoint from "../../utils/endpoint";
+import constant from "../../utils/constant";
+import Loader from '../Loader/Loader.jsx';
+import DynamicBreadcrumbs from "../BreadCrumb/BreadCrumb";
 
 function ProductList() {
   const [records, setRecords] = useState([]);
@@ -21,6 +24,8 @@ function ProductList() {
   const location = useLocation();
   const navigate= useNavigate()
   const [debouncedSearch, setDebouncedSearch] = useState(search);
+  const BASE_URL= import.meta.env.VITE_BASE_URL;
+  const [loading, setLoading] = useState(false);
 
   function useQuery() {
     return new URLSearchParams(location.search);
@@ -41,11 +46,12 @@ function ProductList() {
   }, [search]);
 
   useEffect(() => {
+    setLoading(true);
     const fetchRecords = async () => {
       try {
         
         const response = await axios.get(
-          `http://localhost:3000/${endpoint.CATEGORY}`,
+          `${BASE_URL}/${endpoint.CATEGORY}`,
           {
             headers: {
               Authorization: `${token}`,
@@ -53,8 +59,11 @@ function ProductList() {
             params: { page, limit, search,productId:id }
           }
         );
-        setRecords(response?.data?.data.records|| []);
-        setTotalPages(response?.data?.data?.pages || 1);
+        setTimeout(() => {
+          setRecords(response?.data?.data?.records || []);
+          setTotalPages(response?.data?.data?.pages || 1);
+          setLoading(false);
+        }, 200);
       } catch (error) {
         if (error.response && error.response.status === constant.UNAUTHORIZED_STATUS) {
           toast.error(constant.UNAUTHORIZED_ACCESS);
@@ -64,6 +73,7 @@ function ProductList() {
         } else {
           toast.error(error.response?.data?.message);
         }
+        setLoading(false);
       }
     };
     if (token) {
@@ -91,8 +101,13 @@ function ProductList() {
   };
 
   return (
-    <div className="brand-records-container">
+    <div>
       <ToastContainer />
+    {loading ? (
+      <Loader />
+    ) :(
+    <div className="brand-records-container">
+       <DynamicBreadcrumbs />
       <h3>Your Category Records</h3>
       <div className="search-container">
         <input
@@ -110,7 +125,7 @@ function ProductList() {
             
             <Card
                 key={record.id}
-                img="https://images.unsplash.com/photo-1475178626620-a4d074967452?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGplYW5zfGVufDB8fDB8fHww"
+                img="https://thumbs.dreamstime.com/b/blue-jeans-isolated-white-34440719.jpg"
                 title={record.name}
                 description={record.description}
                 price={record.priceperquantity}
@@ -137,6 +152,8 @@ function ProductList() {
           Next
         </button>
       </div>
+    </div>
+    )}
     </div>
   );
 }

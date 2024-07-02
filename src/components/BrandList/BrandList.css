@@ -216,4 +216,15 @@
     background-color: #f44336;
     color: white;
   }
+  .header-container {
+    display: flex;
+    align-items: left;
+    justify-content: space-between;
+  }
   
+  .search-container {
+    margin-top: 20px;  
+  }
+  .brand-records-container span{
+    margin: 20px;
+  }
